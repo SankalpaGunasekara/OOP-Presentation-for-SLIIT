@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OOP Presentation</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&family=JetBrains+Mono:wght@500&display=swap");
+
+      :root {
+        --bg-gradient: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+        --glass-bg: rgba(255, 255, 255, 0.08);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --accent-blue: #38bdf8;
+        --accent-purple: #c084fc;
+        --accent-green: #4ade80;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: #020617; /* Fallback */
+        background-image: var(--bg-gradient);
+        color: var(--text-main);
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Slide Container */
+      .slide-deck {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      .slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(0.95) translateY(20px);
+        transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        padding: 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .slide.active {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1) translateY(0);
+      }
+
+      /* Typography */
+      h1 {
+        font-size: 5rem;
+        font-weight: 800;
+        background: linear-gradient(
+          to right,
+          var(--accent-blue),
+          var(--accent-purple)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+        line-height: 1.1;
+      }
+
+      h2 {
+        font-size: 3rem;
+        margin-bottom: 2rem;
+        border-left: 8px solid var(--accent-blue);
+        padding-left: 20px;
+      }
+
+      .subtitle {
+        font-size: 2rem;
+        color: var(--text-muted);
+        font-weight: 300;
+      }
+
+      /* Layout Grid */
+      .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr; /* Text left, Code right */
+        gap: 4rem;
+        height: 70%;
+        align-items: center;
+      }
+
+      .text-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        padding: 2rem;
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      .card-title {
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--accent-blue);
+        margin-bottom: 1rem;
+        font-weight: 800;
+      }
+
+      .card p {
+        font-size: 1.4rem;
+        line-height: 1.6;
+      }
+
+      /* Code Block Styling */
+      .code-window {
+        background: #0f1115;
+        border-radius: 12px;
+        border: 1px solid #334155;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .code-header {
+        background: #1e293b;
+        padding: 15px;
+        display: flex;
+        gap: 8px;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      .red {
+        background: #ef4444;
+      }
+      .yellow {
+        background: #eab308;
+      }
+      .green {
+        background: #22c55e;
+      }
+
+      pre {
+        padding: 2rem;
+        font-size: 1.3rem; /* LARGE CODE */
+        overflow-x: auto;
+        line-height: 1.5;
+      }
+
+      /* Syntax Highlighting */
+      .kwd {
+        color: var(--accent-purple);
+      }
+      .type {
+        color: #f59e0b;
+      }
+      .str {
+        color: var(--accent-green);
+      }
+      .com {
+        color: #64748b;
+        font-style: italic;
+        display: block;
+        margin-bottom: 5px;
+      }
+      .func {
+        color: var(--accent-blue);
+      }
+
+      /* Navigation */
+      .nav-controls {
+        position: absolute;
+        bottom: 30px;
+        right: 40px;
+        display: flex;
+        gap: 20px;
+        z-index: 100;
+      }
+
+      .btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 15px 30px;
+        font-size: 1.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .btn:hover {
+        background: var(--accent-blue);
+        border-color: var(--accent-blue);
+        color: #000;
+      }
+
+      .progress-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 6px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-blue),
+          var(--accent-purple)
+        );
+        width: 0%;
+        transition: width 0.5s ease;
+      }
+
+      /* Concept Badge */
+      .concept-badge {
+        display: inline-block;
+        background: rgba(56, 189, 248, 0.15);
+        color: var(--accent-blue);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-deck">
+      <!-- SLIDE 1: INTRO -->
+      <div class="slide active">
+        <div style="text-align: center; max-width: 1000px; margin: 0 auto">
+          <div style="font-size: 6rem; margin-bottom: 20px">🚗 🧬 🏗️</div>
+          <h1>OOP Principles</h1>
+          <p class="subtitle">The Engineering Behind Scalable Software</p>
+          <br /><br />
+          <div class="card" style="display: inline-block; padding: 1.5rem 3rem">
+            <p style="color: var(--accent-blue); font-weight: bold">Problem:</p>
+            <p>How do we organize millions of lines of code?</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 1.5: WHAT IS OOP? -->
+<!-- SLIDE 1.5: WHAT IS OOP? (CONCEPT ONLY) -->
+<!-- SLIDE 1.5: WHAT IS OOP? (RICH VERSION) -->
+   <!-- SLIDE 1.5: WHAT-WHY-HOW -->
+    <div class="slide">
+        <h2>Understanding OOP</h2>
+        <p class="subtitle" style="margin-bottom: 30px;">The 3 Big Questions</p>
+        
+        <!-- 3-Column Layout -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; height: 65%;">
+            
+            <!-- 1. WHAT -->
+            <div class="card" style="border-top: 5px solid var(--accent-blue);">
+                <div class="card-title" style="font-size: 2rem; margin-bottom: 1rem;">1. WHAT?</div>
+                <p style="font-size: 1.2rem; color: var(--accent-blue); font-weight: bold; margin-bottom: 1rem;">Real World Modeling</p>
+                <p>It is a coding style where we organize software based on <strong>Objects</strong> (Things), not just Actions.</p>
+                <br>
+                <p style="font-size: 0.9rem; color: #94a3b8;"><em>Ex: Instead of "Variables", we build "Cars", "Students", "Banks".</em></p>
+            </div>
+
+            <!-- 2. WHY -->
+            <div class="card" style="border-top: 5px solid #ef4444;">
+                <div class="card-title" style="font-size: 2rem; margin-bottom: 1rem;">2. WHY?</div>
+                <p style="font-size: 1.2rem; color: #ef4444; font-weight: bold; margin-bottom: 1rem;">To Fix "Spaghetti Code"</p>
+                <p><strong>The Old Way (Procedural):</strong> Data was loose and messy. Hard to manage.</p>
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0;">
+                <p><strong>The OOP Way:</strong> Code is modular, clean, and reusable.</p>
+            </div>
+
+            <!-- 3. HOW -->
+            <div class="card" style="border-top: 5px solid var(--accent-green);">
+                <div class="card-title" style="font-size: 2rem; margin-bottom: 1rem;">3. HOW?</div>
+                <p style="font-size: 1.2rem; color: var(--accent-green); font-weight: bold; margin-bottom: 1rem;">Bundling (Encapsulation)</p>
+                <p>We bundle the <strong>Data</strong> and the <strong>Logic</strong> together into one unit.</p>
+                <br>
+                <p style="font-size: 0.9rem; color: #94a3b8;"><em>Ex: A "Car Object" holds its own fuel level AND its own drive function.</em></p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SLIDE 1.8: AGENDA (COMPLETE) -->
+    <div class="slide">
+        <h2>Today's Roadmap</h2>
+        <p class="subtitle">The Core Building Blocks of OOP</p>
+        <br>
+        
+        <!-- Grid Layout for 5 Items -->
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; max-width: 1100px; margin: auto;">
+            
+            <!-- 1. Class & Object -->
+            <div class="card" style="text-align: center; width: 300px; ">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">🏗️</div>
+                <div class="card-title">01. Class & Object</div>
+                <p style="font-size: 0.9rem;">The Blueprint & The Instance</p>
+            </div>
+
+            <!-- 2. Encapsulation -->
+            <div class="card" style="text-align: center; width: 300px;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">🛡️</div>
+                <div class="card-title">02. Encapsulation</div>
+                <p style="font-size: 0.9rem;">Data Security</p>
+            </div>
+
+            <!-- 3. Abstraction -->
+            <div class="card" style="text-align: center; width: 300px;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">🕹️</div>
+                <div class="card-title">03. Abstraction</div>
+                <p style="font-size: 0.9rem;">Hiding Complexity</p>
+            </div>
+
+            <!-- 4. Inheritance -->
+            <div class="card" style="text-align: center; width: 300px;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">🧬</div>
+                <div class="card-title">04. Inheritance</div>
+                <p style="font-size: 0.9rem;">Reusability</p>
+            </div>
+
+            <!-- 5. Polymorphism -->
+            <div class="card" style="text-align: center; width: 300px;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">🎭</div>
+                <div class="card-title">05. Polymorphism</div>
+                <p style="font-size: 0.9rem;">Flexibility</p>
+            </div>
+
+        </div>
+    </div>
+
+      <!-- SLIDE 2: CLASS & OBJECT -->
+      <div class="slide">
+        <h2>01. Class vs. Object</h2>
+        <div class="content-grid">
+          <div class="text-panel">
+            <div class="card">
+              <div class="card-title">WHAT (Concept)</div>
+              <p>
+                <strong>Class:</strong> The Blueprint. It defines the rules.
+              </p>
+              <p>
+                <strong>Object:</strong> The actual thing created from that
+                blueprint.
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-title">WHY (Benefit)</div>
+              <p>
+                You design the car <strong>once</strong> (Class), but you can
+                manufacture <strong>thousands</strong> of them (Objects) without
+                redrawing the plans.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="dot red"></div>
+              <div class="dot yellow"></div>
+              <div class="dot green"></div>
+            </div>
+            <pre>
+<span class="com">// 1. The Blueprint (Logic)</span>
+<span class="kwd">class</span> <span class="type">Car</span> {
+    <span class="type">String</span> color;
+    <span class="type">String</span> engineType;
+}
+
+<span class="com">// 2. The Real World Item (Memory)</span>
+<span class="type">Car</span> myAudi = <span class="kwd">new</span> <span class="type">Car</span>();
+<span class="type">Car</span> myToyota = <span class="kwd">new</span> <span class="type">Car</span>();
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: ENCAPSULATION -->
+      <div class="slide">
+        <h2>02. Encapsulation</h2>
+        <div class="content-grid">
+          <div class="text-panel">
+            <div class="card">
+              <div class="card-title">WHAT</div>
+              <p>Wrapping data inside a protective shield.</p>
+              <p>
+                You hide the messy engine wires and only expose the steering
+                wheel.
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-title">WHY</div>
+              <p>
+                <strong>Security.</strong> It prevents other parts of the code
+                from accidentally breaking the internal data.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="dot red"></div>
+              <div class="dot yellow"></div>
+              <div class="dot green"></div>
+            </div>
+            <pre>
+<span class="kwd">class</span> <span class="type">Car</span> {
+    <span class="com">// Private: No one can touch this directly</span>
+    <span class="kwd">private</span> <span class="type">int</span> speed;
+
+    <span class="com">// Public: The controlled way to change speed</span>
+    <span class="kwd">public void</span> <span class="func">accelerate</span>(<span class="type">int</span> amount) {
+        <span class="kwd">if</span> (amount > 0) {
+            speed = speed + amount;
+        }
+    }
+}
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 4: ABSTRACTION -->
+      <div class="slide">
+        <h2>03. Abstraction</h2>
+        <div class="content-grid">
+          <div class="text-panel">
+            <div class="card">
+              <div class="card-title">WHAT</div>
+              <p>
+                Focusing on <strong>what</strong> something does, not
+                <strong>how</strong> it works.
+              </p>
+              <p>
+                You drive using a pedal, ignoring the fuel injection physics.
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-title">WHY</div>
+              <p>
+                <strong>Simplicity.</strong> It hides complex logic so the
+                developer can focus on high-level architecture.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="dot red"></div>
+              <div class="dot yellow"></div>
+              <div class="dot green"></div>
+            </div>
+            <pre>
+<span class="com">// The User Interface</span>
+<span class="kwd">interface</span> <span class="type">Drivable</span> {
+    <span class="kwd">void</span> <span class="func">drive</span>(); 
+    <span class="com">// We don't care HOW it drives yet</span>
+}
+
+<span class="com">// The Implementation</span>
+<span class="kwd">class</span> <span class="type">Tesla</span> <span class="kwd">implements</span> <span class="type">Drivable</span> {
+    <span class="kwd">public void</span> <span class="func">drive</span>() {
+        <span class="com">// Complex electric motor logic...</span>
+    }
+}
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 5: INHERITANCE -->
+      <div class="slide">
+        <h2>04. Inheritance</h2>
+        <div class="content-grid">
+          <div class="text-panel">
+            <div class="card">
+              <div class="card-title">WHAT</div>
+              <p>
+                A child class automatically gets the fields and methods of a
+                parent class.
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-title">WHY</div>
+              <p>
+                <strong>Reusability.</strong> A 'SportsCar' is just a 'Vehicle'
+                plus a turbo. Don't rewrite the wheel logic!
+              </p>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="dot red"></div>
+              <div class="dot yellow"></div>
+              <div class="dot green"></div>
+            </div>
+            <pre>
+<span class="com">// The Base Class</span>
+<span class="kwd">class</span> <span class="type">Vehicle</span> {
+    <span class="type">int</span> wheels = 4;
+}
+
+<span class="com">// The Child Class</span>
+<span class="kwd">class</span> <span class="type">SportsCar</span> <span class="kwd">extends</span> <span class="type">Vehicle</span> {
+    <span class="type">boolean</span> hasTurbo = <span class="kwd">true</span>;
+    
+    <span class="com">// SportsCar now has BOTH </span>
+    <span class="com">// 'wheels' and 'hasTurbo'</span>
+}
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 6: POLYMORPHISM -->
+      <div class="slide">
+        <h2>05. Polymorphism</h2>
+        <div class="content-grid">
+          <div class="text-panel">
+            <div class="card">
+              <div class="card-title">WHAT</div>
+              <p>
+                "Many Forms". One method name behaves differently based on the
+                object type.
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-title">WHY</div>
+              <p>
+                <strong>Flexibility.</strong> You can press the "Gas Pedal" on
+                any car, and it will go, without needing to know if it's a Truck
+                or a Ferrari.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-window">
+            <div class="code-header">
+              <div class="dot red"></div>
+              <div class="dot yellow"></div>
+              <div class="dot green"></div>
+            </div>
+            <pre>
+<span class="kwd">class</span> <span class="type">Truck</span> <span class="kwd">extends</span> <span class="type">Vehicle</span> {
+    <span class="kwd">void</span> <span class="func">go</span>() { print(<span class="str">"Heavy Start..."</span>); }
+}
+
+<span class="kwd">class</span> <span class="type">Ferrari</span> <span class="kwd">extends</span> <span class="type">Vehicle</span> {
+    <span class="kwd">void</span> <span class="func">go</span>() { print(<span class="str">"Zoom!"</span>); }
+}
+
+<span class="com">// The Magic:</span>
+<span class="type">Vehicle</span> v = <span class="kwd">new</span> <span class="type">Ferrari</span>();
+v.<span class="func">go</span>(); <span class="com">// Outputs: "Zoom!"</span>
+</pre>
+          </div>
+        </div>
+      </div>
+      <!-- SLIDE 7: END -->
+    <div class="slide">
+        <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+            <div style="font-size: 6rem; margin-bottom: 20px;">👋</div>
+            <h1>Thank You!</h1>
+            <p class="subtitle" style="margin-bottom: 3rem;">I am happy to take any questions.</p>
+            
+            <!-- Contact / Name Card -->
+            <div class="card" style="display: inline-block; padding: 2rem 4rem; border: 1px solid var(--accent-green);">
+                <p style="font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 10px;">Candidate</p>
+                <p style="font-size: 2rem; font-weight: 800; color: var(--accent-green);">Sankalpa Gunasekara</p>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Nav -->
+    <div class="nav-controls">
+      <button class="btn" onclick="prevSlide()">❮ Back</button>
+      <button class="btn" onclick="nextSlide()">Next ❯</button>
+    </div>
+
+    <script>
+      let current = 0;
+      const slides = document.querySelectorAll(".slide");
+      const bar = document.getElementById("progressBar");
+
+      function update() {
+        slides.forEach((slide, i) => {
+          slide.classList.remove("active");
+          if (i === current) slide.classList.add("active");
+        });
+        bar.style.width = ((current + 1) / slides.length) * 100 + "%";
+      }
+
+      function nextSlide() {
+        if (current < slides.length - 1) {
+          current++;
+          update();
+        }
+      }
+
+      function prevSlide() {
+        if (current > 0) {
+          current--;
+          update();
+        }
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === " ") nextSlide();
+        if (e.key === "ArrowLeft") prevSlide();
+      });
+
+      update(); // Init
+    </script>
+  </body>
+</html>
